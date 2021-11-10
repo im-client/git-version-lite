@@ -39,14 +39,14 @@ function getPriorReleaseCommit(tagPrefix, fallbackToNoPrefixSearch) {
     .sort((a, b) => semver.rcompare(a.semverValue, b.semverValue));
 
   core.info('release tags');
-  core.info(semverReleaseTags);
+  core.info(JSON.stringify(semverReleaseTags));
 
   for (let i = 0; i < semverReleaseTags.length; i++) {
     const candidateTagObj = semverReleaseTags[i];
-    core.info(`checking ${candidateTagObj}`);
+    core.info(`checking ${JSON.stringify(candidateTagObj)}`);
     if (git.isAncestor(candidateTagObj.tag, 'HEAD')) {
       const commitMetadata = git.commitMetadata(candidateTagObj.tag);
-      core.info(`choosing ${candidateTagObj}`);
+      core.info(`choosing ${JSON.stringify(candidateTagObj)}`);
       return {
         ...commitMetadata,
         semver: candidateTagObj.semverValue
