@@ -8462,7 +8462,7 @@ var require_version = __commonJS({
       if (!tags || tags.length === 0) {
         return null;
       }
-      const semverReleaseTags = tags
+      const semverRelease = tags
         .map(tag => ({
           tag,
           semverValue: semver.clean(
@@ -8473,20 +8473,14 @@ var require_version = __commonJS({
         .filter(
           tagObj => tagObj.semverValue !== null && semver.prerelease(tagObj.semverValue) === null
         )
-        .sort((a, b) => semver.rcompare(a.semverValue, b.semverValue));
-      core2.info('release tags');
-      core2.info(JSON.stringify(semverReleaseTags));
-      for (let i = 0; i < semverReleaseTags.length; i++) {
-        const candidateTagObj = semverReleaseTags[i];
-        core2.info(`checking ${JSON.stringify(candidateTagObj)}`);
-        if (git.isAncestor(candidateTagObj.tag, 'HEAD')) {
-          const commitMetadata = git.commitMetadata(candidateTagObj.tag);
-          core2.info(`choosing ${JSON.stringify(candidateTagObj)}`);
-          return {
-            ...commitMetadata,
-            semver: candidateTagObj.semverValue
-          };
-        }
+        .sort((a, b) => semver.rcompare(a.semverValue, b.semverValue))
+        .find(e => true);
+      if (semverRelease) {
+        const commitMetadata = git.commitMetadata(semverRelease.tag);
+        return {
+          ...commitMetadata,
+          semver: semverRelease.semverValue
+        };
       }
       return null;
     }

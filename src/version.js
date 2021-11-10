@@ -29,30 +29,24 @@ function getPriorReleaseCommit(tagPrefix, fallbackToNoPrefixSearch) {
     return null;
   }
 
-  const semverReleaseTags = tags
+  const semverRelease = tags
     .map(tag => ({
       tag: tag,
       semverValue: semver.clean(tag.startsWith(tagPrefix) ? tag.slice(tagPrefix.length) : tag, true)
     }))
     // only keep the ones that look like semver release versions
     .filter(tagObj => tagObj.semverValue !== null && semver.prerelease(tagObj.semverValue) === null)
-    .sort((a, b) => semver.rcompare(a.semverValue, b.semverValue));
+    .sort((a, b) => semver.rcompare(a.semverValue, b.semverValue))
+    .find(e => true);
 
-  core.info('release tags');
-  core.info(JSON.stringify(semverReleaseTags));
-
-  for (let i = 0; i < semverReleaseTags.length; i++) {
-    const candidateTagObj = semverReleaseTags[i];
-    core.info(`checking ${JSON.stringify(candidateTagObj)}`);
-    if (git.isAncestor(candidateTagObj.tag, 'HEAD')) {
-      const commitMetadata = git.commitMetadata(candidateTagObj.tag);
-      core.info(`choosing ${JSON.stringify(candidateTagObj)}`);
-      return {
-        ...commitMetadata,
-        semver: candidateTagObj.semverValue
-      };
-    }
+  if (semverRelease) {
+    const commitMetadata = git.commitMetadata(semverRelease.tag);
+    return {
+      ...commitMetadata,
+      semver: semverRelease.semverValue
+    };
   }
+
   return null;
 }
 
