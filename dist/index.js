@@ -8474,10 +8474,14 @@ var require_version = __commonJS({
           tagObj => tagObj.semverValue !== null && semver.prerelease(tagObj.semverValue) === null
         )
         .sort((a, b) => semver.rcompare(a.semverValue, b.semverValue));
+      core2.info('release tags');
+      core2.info(semverReleaseTags);
       for (let i = 0; i < semverReleaseTags.length; i++) {
         const candidateTagObj = semverReleaseTags[i];
+        core2.info(`checking ${candidateTagObj}`);
         if (git.isAncestor(candidateTagObj.tag, 'HEAD')) {
           const commitMetadata = git.commitMetadata(candidateTagObj.tag);
+          core2.info(`choosing ${candidateTagObj}`);
           return {
             ...commitMetadata,
             semver: candidateTagObj.semverValue
